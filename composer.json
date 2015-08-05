@@ -1,0 +1,39 @@
+{
+    "name": "jobbrander/jobs-ziprecruiter",
+    "type": "library",
+    "description": "Making it simple to integrate your application with ZipRecruiter Jobs API.",
+    "keywords": [
+        "jobs",
+        "api client",
+        "object",
+        "indeed"
+    ],
+    "homepage": "https://github.com/JobBrander/jobs-ziprecruiter",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Karl Hughes",
+            "email": "khughes.me@gmail.com",
+            "homepage": "https://github.com/karllhughes"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "jobbrander/jobs-common": "~1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*",
+        "phpunit/php-code-coverage": "~2.0",
+        "mockery/mockery": ">=0.9.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "JobBrander\\Jobs\\Client\\Providers\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JobBrander\\Jobs\\Client\\Providers\\Test\\": "tests/src/"
+        }
+    }
+}
