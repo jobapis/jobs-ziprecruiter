@@ -5,25 +5,11 @@ use JobBrander\Jobs\Client\Job;
 class Ziprecruiter extends AbstractProvider
 {
     /**
-     * Publisher Id
+     * API Key
      *
      * @var string
      */
-    protected $publisherId;
-
-    /**
-     * Version
-     *
-     * @var string
-     */
-    protected $version;
-
-    /**
-     * Highlight
-     *
-     * @var string
-     */
-    protected $highlight;
+    protected $apiKey;
 
     /**
      * Query params
@@ -58,38 +44,36 @@ class Ziprecruiter extends AbstractProvider
     public function createJobObject($payload)
     {
         $defaults = [
-            'jobtitle',
-            'company',
-            'formattedLocation',
             'source',
-            'date',
+            'id',
+            'name',
             'snippet',
+            'category',
+            'posted_time',
+            'posted_time_friendly',
             'url',
-            'jobkey'
+            'location',
+            'city',
+            'state',
+            'country',
+            'hiring_company',
         ];
 
         $payload = static::parseAttributeDefaults($payload, $defaults);
 
         $job = new Job([
-            'title' => $payload['jobtitle'],
-            'name' => $payload['jobtitle'],
+            'title' => $payload['name'],
+            'name' => $payload['name'],
             'description' => $payload['snippet'],
             'url' => $payload['url'],
-            'sourceId' => $payload['jobkey'],
-            'location' => $payload['formattedLocation'],
+            'sourceId' => $payload['id'],
+            'location' => $payload['location'],
         ]);
 
-        $location = $this->parseLocation($payload['formattedLocation']);
-
-        $job->setCompany($payload['company'])
-            ->setDatePostedAsString($payload['date']);
-
-        if (isset($location[0])) {
-            $job->setCity($location[0]);
-        }
-        if (isset($location[1])) {
-            $job->setState($location[1]);
-        }
+        $job->setCompany($payload['hiring_company'])
+            ->setDatePostedAsString($payload['posted_time'])
+            ->setCity($payload['city'])
+            ->setState($payload['state']);
 
         return $job;
     }
@@ -111,7 +95,7 @@ class Ziprecruiter extends AbstractProvider
      */
     public function getListingsPath()
     {
-        return 'results';
+        return 'jobs';
     }
 
     /**
@@ -131,16 +115,6 @@ class Ziprecruiter extends AbstractProvider
     }
 
     /**
-     * Get parameters
-     *
-     * @return  array
-     */
-    public function getParameters()
-    {
-        return [];
-    }
-
-    /**
      * Get query string for client based on properties
      *
      * @return string
@@ -148,14 +122,11 @@ class Ziprecruiter extends AbstractProvider
     public function getQueryString()
     {
         $query_params = [
-            'publisher' => 'getPublisherId',
-            'v' => 'getVersion',
-            'highlight' => 'getHighlight',
-            'format' => 'getFormat',
-            'q' => 'getKeyword',
-            'l' => 'getLocation',
-            'start' => 'getPage',
-            'limit' => 'getCount',
+            'api_key' => 'getApiKey',
+            'search' => 'getKeyword',
+            'location' => 'getLocation',
+            'page' => 'getPage',
+            'jobs_per_page' => 'getCount',
         ];
 
         array_walk($query_params, [$this, 'addToQueryStringIfValid']);
@@ -172,7 +143,7 @@ class Ziprecruiter extends AbstractProvider
     {
         $query_string = $this->getQueryString();
 
-        return 'http://api.indeed.com/ads/apisearch?'.$query_string;
+        return 'https://api.ziprecruiter.com/jobs/v1?'.$query_string;
     }
 
     /**
@@ -183,15 +154,5 @@ class Ziprecruiter extends AbstractProvider
     public function getVerb()
     {
         return 'GET';
-    }
-
-    /**
-     * Parse city and state from string given by API
-     *
-     * @return array
-     */
-    public function parseLocation($location)
-    {
-        return explode(', ', $location);
     }
 }

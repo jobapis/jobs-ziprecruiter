@@ -12,31 +12,9 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->params = [
-            'publisherId' => '12345667',
-            'version' => 2,
-            'highlight' => 0,
+            'apiKey' => '12345667'
         ];
-        $this->client = new Indeed($this->params);
-    }
-
-    private function getResultItems($count = 1)
-    {
-        $results = [];
-
-        for ($i = 0; $i < $count; $i++) {
-            array_push($results, [
-                'jobtitle' => uniqid(),
-                'company' => uniqid(),
-                'formattedLocation' => uniqid(),
-                'source' => uniqid(),
-                'date' => '2015-07-'.rand(1,31),
-                'snippet' => uniqid(),
-                'url' => uniqid(),
-                'jobkey' => uniqid(),
-            ]);
-        }
-
-        return $results;
+        $this->client = new Ziprecruiter($this->params);
     }
 
     public function testItWillUseJsonFormat()
@@ -57,39 +35,13 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     {
         $path = $this->client->getListingsPath();
 
-        $this->assertEquals('results', $path);
-    }
-
-    public function testItWillProvideEmptyParameters()
-    {
-        $parameters = $this->client->getParameters();
-
-        $this->assertEmpty($parameters);
-        $this->assertTrue(is_array($parameters));
-    }
-
-    public function testUrlIncludesHighlightWhenProvided()
-    {
-        $param = 'highlight='.$this->params['highlight'];
-
-        $url = $this->client->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlNotIncludesHighlightWhenNotProvided()
-    {
-        $param = 'highlight=';
-
-        $url = $this->client->setHighlight(null)->getUrl();
-
-        $this->assertNotContains($param, $url);
+        $this->assertEquals('jobs', $path);
     }
 
     public function testUrlIncludesKeywordWhenProvided()
     {
         $keyword = uniqid().' '.uniqid();
-        $param = 'q='.urlencode($keyword);
+        $param = 'search='.urlencode($keyword);
 
         $url = $this->client->setKeyword($keyword)->getUrl();
 
@@ -98,7 +50,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
 
     public function testUrlNotIncludesKeywordWhenNotProvided()
     {
-        $param = 'q=';
+        $param = 'search=';
 
         $url = $this->client->getUrl();
 
@@ -109,7 +61,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     {
         $city = uniqid();
         $state = uniqid();
-        $param = 'l='.urlencode($city.', '.$state);
+        $param = 'location='.urlencode($city.', '.$state);
 
         $url = $this->client->setCity($city)->setState($state)->getUrl();
 
@@ -119,7 +71,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     public function testUrlIncludesLocationWhenCityProvided()
     {
         $city = uniqid();
-        $param = 'l='.urlencode($city);
+        $param = 'location='.urlencode($city);
 
         $url = $this->client->setCity($city)->getUrl();
 
@@ -129,7 +81,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     public function testUrlIncludesLocationWhenStateProvided()
     {
         $state = uniqid();
-        $param = 'l='.urlencode($state);
+        $param = 'location='.urlencode($state);
 
         $url = $this->client->setState($state)->getUrl();
 
@@ -138,7 +90,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
 
     public function testUrlNotIncludesLocationWhenNotProvided()
     {
-        $param = 'l=';
+        $param = 'location=';
 
         $url = $this->client->getUrl();
 
@@ -148,7 +100,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     public function testUrlIncludesLimitWhenProvided()
     {
         $limit = uniqid();
-        $param = 'limit='.$limit;
+        $param = 'jobs_per_page='.$limit;
 
         $url = $this->client->setCount($limit)->getUrl();
 
@@ -157,27 +109,27 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
 
     public function testUrlNotIncludesLimitWhenNotProvided()
     {
-        $param = 'limit=';
+        $param = 'jobs_per_page=';
 
         $url = $this->client->setCount(null)->getUrl();
 
         $this->assertNotContains($param, $url);
     }
 
-    public function testUrlIncludesPublisherWhenProvided()
+    public function testUrlIncludesApiKeyWhenProvided()
     {
-        $param = 'publisher='.$this->params['publisherId'];
+        $param = 'api_key='.$this->params['apiKey'];
 
         $url = $this->client->getUrl();
 
         $this->assertContains($param, $url);
     }
 
-    public function testUrlNotIncludesPublisherWhenNotProvided()
+    public function testUrlNotIncludesApiKeyWhenNotProvided()
     {
-        $param = 'publisher=';
+        $param = 'api_key=';
 
-        $url = $this->client->setPublisherId(null)->getUrl();
+        $url = $this->client->setApiKey(null)->getUrl();
 
         $this->assertNotContains($param, $url);
     }
@@ -185,7 +137,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     public function testUrlIncludesStartWhenProvided()
     {
         $page = uniqid();
-        $param = 'start='.$page;
+        $param = 'page='.$page;
 
         $url = $this->client->setPage($page)->getUrl();
 
@@ -194,27 +146,9 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
 
     public function testUrlNotIncludesStartWhenNotProvided()
     {
-        $param = 'start=';
+        $param = '&page=';
 
         $url = $this->client->setPage(null)->getUrl();
-
-        $this->assertNotContains($param, $url);
-    }
-
-    public function testUrlIncludesVersionWhenProvided()
-    {
-        $param = 'v='.$this->params['version'];
-
-        $url = $this->client->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlNotIncludesVersionWhenNotProvided()
-    {
-        $param = 'v=';
-
-        $url = $this->client->setVersion(null)->getUrl();
 
         $this->assertNotContains($param, $url);
     }
@@ -224,14 +158,15 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
         $payload = $this->createJobArray();
         $results = $this->client->createJobObject($payload);
 
-        $this->assertEquals($payload['jobtitle'], $results->title);
+        $this->assertEquals($payload['name'], $results->title);
         $this->assertEquals($payload['snippet'], $results->description);
-        $this->assertEquals($payload['company'], $results->company);
+        $this->assertEquals($payload['hiring_company'], $results->company);
         $this->assertEquals($payload['url'], $results->url);
-        $this->assertEquals($payload['jobkey'], $results->sourceId);
-        $this->assertEquals($payload['formattedLocation'], $results->location);
+        $this->assertEquals($payload['id'], $results->sourceId);
+        $this->assertEquals($payload['location'], $results->location);
     }
 
+    /*
     public function testItCanConnect()
     {
         $provider = $this->getProviderAttributes();
@@ -263,16 +198,19 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf($this->collectionClass, $results);
         $this->assertCount($provider['jobs_count'], $results);
     }
+    */
 
     private function createJobArray() {
         return [
-            'jobtitle' => uniqid(),
-            'company' => uniqid(),
-            'formattedLocation' => uniqid().', '.uniqid(),
+            'source' => uniqid(),
+            'id' => uniqid(),
+            'name' => uniqid(),
+            'location' => uniqid(),
             'snippet' => uniqid(),
-            'date' => '2015-07-'.rand(1,31),
+            'category' => uniqid(),
+            'hiring_company' => uniqid(),
+            'posted_time' => '2015-07-'.rand(1,31),
             'url' => uniqid(),
-            'jobkey' => uniqid(),
         ];
     }
 
@@ -285,7 +223,6 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
             'source' => uniqid(),
             'params' => [uniqid()],
             'jobs_count' => rand(2,10),
-
         ];
         return array_replace($defaults, $attributes);
     }
