@@ -70,7 +70,8 @@ class Ziprecruiter extends AbstractProvider
             'location' => $payload['location'],
         ]);
 
-        $job->setCompany($payload['hiring_company'])
+        $job->setCompany($payload['hiring_company']['name'])
+            ->setCompanyUrl($payload['hiring_company']['url'])
             ->setDatePostedAsString($payload['posted_time'])
             ->setCity($payload['city'])
             ->setState($payload['state']);

@@ -160,19 +160,18 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($payload['name'], $results->title);
         $this->assertEquals($payload['snippet'], $results->description);
-        $this->assertEquals($payload['hiring_company'], $results->company);
+        $this->assertEquals($payload['hiring_company']['name'], $results->company);
         $this->assertEquals($payload['url'], $results->url);
         $this->assertEquals($payload['id'], $results->sourceId);
         $this->assertEquals($payload['location'], $results->location);
     }
 
-    /*
     public function testItCanConnect()
     {
         $provider = $this->getProviderAttributes();
 
         for ($i = 0; $i < $provider['jobs_count']; $i++) {
-            $payload['results'][] = $this->createJobArray();
+            $payload['jobs'][] = $this->createJobArray();
         }
 
         $responseBody = json_encode($payload);
@@ -198,7 +197,6 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf($this->collectionClass, $results);
         $this->assertCount($provider['jobs_count'], $results);
     }
-    */
 
     private function createJobArray() {
         return [
@@ -208,7 +206,10 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
             'location' => uniqid(),
             'snippet' => uniqid(),
             'category' => uniqid(),
-            'hiring_company' => uniqid(),
+            'hiring_company' => [
+                'url' => uniqid(),
+                'name' => uniqid(),
+            ],
             'posted_time' => '2015-07-'.rand(1,31),
             'url' => uniqid(),
         ];

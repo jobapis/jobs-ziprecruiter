@@ -1,7 +1,5 @@
 # ZipRecruiter Jobs Client
 
-**NOTE: Still working on this provider**
-
 [![Latest Version](https://img.shields.io/github/release/JobBrander/jobs-ziprecruiter.svg?style=flat-square)](https://github.com/JobBrander/jobs-ziprecruiter/releases)
 [![Software License](https://img.shields.io/badge/license-APACHE%202.0-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/JobBrander/jobs-ziprecruiter/master.svg?style=flat-square&1)](https://travis-ci.org/JobBrander/jobs-ziprecruiter)
