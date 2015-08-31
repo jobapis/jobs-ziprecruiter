@@ -7,7 +7,8 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/JobBrander/jobs-ziprecruiter.svg?style=flat-square)](https://scrutinizer-ci.com/g/JobBrander/jobs-ziprecruiter)
 [![Total Downloads](https://img.shields.io/packagist/dt/jobbrander/jobs-ziprecruiter.svg?style=flat-square)](https://packagist.org/packages/jobbrander/jobs-ziprecruiter)
 
-This package provides ZipRecruiter Jobs API support for the JobBrander's [Jobs Client](https://github.com/JobBrander/jobs-common).
+This package provides [ZipRecruiter Jobs API](https://www.ziprecruiter.com/publishers)
+support for the JobBrander's [Jobs Client](https://github.com/JobBrander/jobs-common).
 
 ## Installation
 
