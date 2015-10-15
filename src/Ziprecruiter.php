@@ -5,33 +5,62 @@ use JobBrander\Jobs\Client\Job;
 class Ziprecruiter extends AbstractProvider
 {
     /**
-     * API Key
-     *
-     * @var string
-     */
-    protected $apiKey;
-
-    /**
-     * Query params
+     * Map of setter methods to query parameters
      *
      * @var array
      */
-    protected $queryParams = [];
+    protected $queryMap = [
+        'setApiKey' => 'api_key',
+        'setSearch' => 'search',
+        'setLocation' => 'location',
+        'setRadiusMiles' => 'radius_miles',
+        'setPage' => 'page',
+        'setJobsPerPage' => 'jobs_per_page',
+        'setDaysAgo' => 'days_ago',
+        'setKeyword' => 'search',
+        'setCount' => 'jobs_per_page',
+    ];
 
     /**
-     * Add query params, if valid
+     * Current api query parameters
      *
-     * @param string $value
-     * @param string $key
-     *
-     * @return  void
+     * @var array
      */
-    private function addToQueryStringIfValid($value, $key)
+    protected $queryParams = [
+        'api_key' => null,
+        'search' => null,
+        'location' => null,
+        'radius_miles' => null,
+        'page' => null,
+        'jobs_per_page' => null,
+        'days_ago' => null,
+    ];
+
+    /**
+     * Create new Ziprecruiter jobs client.
+     *
+     * @param array $parameters
+     */
+    public function __construct($parameters = [])
     {
-        $computed_value = $this->$value();
-        if (!is_null($computed_value)) {
-            $this->queryParams[$key] = $computed_value;
+        parent::__construct($parameters);
+        array_walk($parameters, [$this, 'updateQuery']);
+    }
+
+    /**
+     * Magic method to handle get and set methods for properties
+     *
+     * @param  string $method
+     * @param  array  $parameters
+     *
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        if (isset($this->queryMap[$method], $parameters[0])) {
+            $this->updateQuery($parameters[0], $this->queryMap[$method]);
         }
+        return parent::__call($method, $parameters);
     }
 
     /**
@@ -100,38 +129,12 @@ class Ziprecruiter extends AbstractProvider
     }
 
     /**
-     * Get combined location
-     *
-     * @return string
-     */
-    public function getLocation()
-    {
-        $location = ($this->city ? $this->city.', ' : null).($this->state ?: null);
-
-        if ($location) {
-            return $location;
-        }
-
-        return null;
-    }
-
-    /**
      * Get query string for client based on properties
      *
      * @return string
      */
     public function getQueryString()
     {
-        $query_params = [
-            'api_key' => 'getApiKey',
-            'search' => 'getKeyword',
-            'location' => 'getLocation',
-            'page' => 'getPage',
-            'jobs_per_page' => 'getCount',
-        ];
-
-        array_walk($query_params, [$this, 'addToQueryStringIfValid']);
-
         return http_build_query($this->queryParams);
     }
 
@@ -155,5 +158,21 @@ class Ziprecruiter extends AbstractProvider
     public function getVerb()
     {
         return 'GET';
+    }
+
+    /**
+     * Attempts to update current query parameters.
+     *
+     * @param  string  $value
+     * @param  string  $key
+     *
+     * @return Careerbuilder
+     */
+    protected function updateQuery($value, $key)
+    {
+        if (array_key_exists($key, $this->queryParams)) {
+            $this->queryParams[$key] = $value;
+        }
+        return $this;
     }
 }

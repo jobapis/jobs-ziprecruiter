@@ -24,14 +24,22 @@ Usage is the same as Job Branders's Jobs Client, using `\JobBrander\Jobs\Client\
 
 ```php
 $client = new JobBrander\Jobs\Client\Provider\Ziprecruiter([
-    'apiKey' => 'YOUR ZIPRECRUITER API KEY'
+    'api_key' => 'YOUR ZIPRECRUITER API KEY'
 ]);
 
 // Search for 200 job listings for 'project manager' in Chicago, IL
-$jobs = $client->setKeyword('project manager')
-    ->setCity('Chicago')
-    ->setState('IL')
-    ->setCount(200)
+$jobs = $client
+    // Supported by Ziprecruiter
+    ->setApiKey('')     // assigned API key
+    ->setSearch('')     // search terms, e.g. “Inside Sales”
+    ->setLocation('Chicago, IL')    // location, e.g., “San Francisco, CA”
+    ->setRadiusMiles()      // distance of the job relative to the location
+    ->setPage()             // current page ranging from 1-N
+    ->setJobsPerPage()      // number of job results to show per page. A maximum of 500 results are returned through pagination
+    ->setDaysAgo()          // only show jobs posted within this number of days
+    // Additional setters
+    ->setKeyword('project manager')     // Alias for 'setSearch()'
+    ->setCount(200)         // Alias for setPage()
     ->getJobs();
 ```
 

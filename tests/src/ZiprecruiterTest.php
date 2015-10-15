@@ -12,7 +12,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->params = [
-            'apiKey' => '12345667'
+            'api_key' => '12345667'
         ];
         $this->client = new Ziprecruiter($this->params);
     }
@@ -63,7 +63,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
         $state = uniqid();
         $param = 'location='.urlencode($city.', '.$state);
 
-        $url = $this->client->setCity($city)->setState($state)->getUrl();
+        $url = $this->client->setLocation($city.', '.$state)->getUrl();
 
         $this->assertContains($param, $url);
     }
@@ -73,7 +73,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
         $city = uniqid();
         $param = 'location='.urlencode($city);
 
-        $url = $this->client->setCity($city)->getUrl();
+        $url = $this->client->setLocation($city)->getUrl();
 
         $this->assertContains($param, $url);
     }
@@ -83,7 +83,7 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
         $state = uniqid();
         $param = 'location='.urlencode($state);
 
-        $url = $this->client->setState($state)->getUrl();
+        $url = $this->client->setLocation($state)->getUrl();
 
         $this->assertContains($param, $url);
     }
@@ -118,20 +118,11 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
 
     public function testUrlIncludesApiKeyWhenProvided()
     {
-        $param = 'api_key='.$this->params['apiKey'];
+        $param = 'api_key='.$this->params['api_key'];
 
         $url = $this->client->getUrl();
 
         $this->assertContains($param, $url);
-    }
-
-    public function testUrlNotIncludesApiKeyWhenNotProvided()
-    {
-        $param = 'api_key=';
-
-        $url = $this->client->setApiKey(null)->getUrl();
-
-        $this->assertNotContains($param, $url);
     }
 
     public function testUrlIncludesStartWhenProvided()
