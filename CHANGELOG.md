@@ -1,7 +1,7 @@
 # Changelog
 All Notable changes to `jobs-ziprecruiter` will be documented in this file
 
-## 0.1.0 - 2015-10-15
+## 0.2.0 - 2015-10-15
 
 ### Added
 - Support for all setters in API
