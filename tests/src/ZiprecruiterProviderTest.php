@@ -1,192 +1,125 @@
 <?php namespace JobApis\Jobs\Client\Providers\Test;
 
-use JobBrander\Jobs\Client\Providers\Ziprecruiter;
+use JobApis\Jobs\Client\Collection;
+use JobApis\Jobs\Client\Job;
+use JobApis\Jobs\Client\Providers\ZiprecruiterProvider;
+use JobApis\Jobs\Client\Queries\ZiprecruiterQuery;
 use Mockery as m;
 
-class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
+class ZiprecruiterProviderTest extends \PHPUnit_Framework_TestCase
 {
-    private $clientClass = 'JobBrander\Jobs\Client\Providers\AbstractProvider';
-    private $collectionClass = 'JobBrander\Jobs\Client\Collection';
-    private $jobClass = 'JobBrander\Jobs\Client\Job';
-
     public function setUp()
     {
-        $this->params = [
-            'api_key' => '12345667'
+        $this->query = m::mock('JobApis\Jobs\Client\Queries\ZiprecruiterQuery');
+
+        $this->client = new ZiprecruiterProvider($this->query);
+    }
+
+    public function testItCanGetDefaultResponseFields()
+    {
+        $fields = [
+            'source',
+            'id',
+            'name',
+            'snippet',
+            'category',
+            'posted_time',
+            'posted_time_friendly',
+            'url',
+            'location',
+            'city',
+            'state',
+            'country',
+            'hiring_company',
         ];
-        $this->client = new Ziprecruiter($this->params);
+        $this->assertEquals($fields, $this->client->getDefaultResponseFields());
     }
 
-    public function testItWillUseJsonFormat()
+    public function testItCanGetListingsPath()
     {
-        $format = $this->client->getFormat();
-
-        $this->assertEquals('json', $format);
+        $this->assertEquals('jobs', $this->client->getListingsPath());
     }
 
-    public function testItWillUseGetHttpVerb()
-    {
-        $verb = $this->client->getVerb();
-
-        $this->assertEquals('GET', $verb);
-    }
-
-    public function testListingPath()
-    {
-        $path = $this->client->getListingsPath();
-
-        $this->assertEquals('jobs', $path);
-    }
-
-    public function testUrlIncludesKeywordWhenProvided()
-    {
-        $keyword = uniqid().' '.uniqid();
-        $param = 'search='.urlencode($keyword);
-
-        $url = $this->client->setKeyword($keyword)->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlNotIncludesKeywordWhenNotProvided()
-    {
-        $param = 'search=';
-
-        $url = $this->client->getUrl();
-
-        $this->assertNotContains($param, $url);
-    }
-
-    public function testUrlIncludesLocationWhenCityAndStateProvided()
-    {
-        $city = uniqid();
-        $state = uniqid();
-        $param = 'location='.urlencode($city.', '.$state);
-
-        $url = $this->client->setLocation($city.', '.$state)->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlIncludesLocationWhenCityProvided()
-    {
-        $city = uniqid();
-        $param = 'location='.urlencode($city);
-
-        $url = $this->client->setLocation($city)->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlIncludesLocationWhenStateProvided()
-    {
-        $state = uniqid();
-        $param = 'location='.urlencode($state);
-
-        $url = $this->client->setLocation($state)->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlNotIncludesLocationWhenNotProvided()
-    {
-        $param = 'location=';
-
-        $url = $this->client->getUrl();
-
-        $this->assertNotContains($param, $url);
-    }
-
-    public function testUrlIncludesLimitWhenProvided()
-    {
-        $limit = uniqid();
-        $param = 'jobs_per_page='.$limit;
-
-        $url = $this->client->setCount($limit)->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlNotIncludesLimitWhenNotProvided()
-    {
-        $param = 'jobs_per_page=';
-
-        $url = $this->client->setCount(null)->getUrl();
-
-        $this->assertNotContains($param, $url);
-    }
-
-    public function testUrlIncludesApiKeyWhenProvided()
-    {
-        $param = 'api_key='.$this->params['api_key'];
-
-        $url = $this->client->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlIncludesStartWhenProvided()
-    {
-        $page = uniqid();
-        $param = 'page='.$page;
-
-        $url = $this->client->setPage($page)->getUrl();
-
-        $this->assertContains($param, $url);
-    }
-
-    public function testUrlNotIncludesStartWhenNotProvided()
-    {
-        $param = '&page=';
-
-        $url = $this->client->setPage(null)->getUrl();
-
-        $this->assertNotContains($param, $url);
-    }
-
-    public function testItCanCreateJobFromPayload()
+    public function testItCanCreateJobObjectFromPayload()
     {
         $payload = $this->createJobArray();
+
         $results = $this->client->createJobObject($payload);
 
-        $this->assertEquals($payload['name'], $results->title);
-        $this->assertEquals($payload['snippet'], $results->description);
-        $this->assertEquals($payload['hiring_company']['name'], $results->company);
-        $this->assertEquals($payload['url'], $results->url);
-        $this->assertEquals($payload['id'], $results->sourceId);
-        $this->assertEquals($payload['location'], $results->location);
+        $this->assertInstanceOf(Job::class, $results);
+        $this->assertEquals($payload['name'], $results->getTitle());
+        $this->assertEquals($payload['name'], $results->getName());
+        $this->assertEquals($payload['snippet'], $results->getDescription());
+        $this->assertEquals($payload['hiring_company']['name'], $results->getCompanyName());
+        $this->assertEquals($payload['url'], $results->getUrl());
     }
 
-    public function testItCanConnect()
+    /**
+     * Integration test for the client's getJobs() method.
+     */
+    public function testItCanGetJobs()
     {
-        $provider = $this->getProviderAttributes();
+        $options = [
+            'search' => uniqid(),
+            'location' => uniqid(),
+            'api_key' => uniqid(),
+        ];
 
-        for ($i = 0; $i < $provider['jobs_count']; $i++) {
-            $payload['jobs'][] = $this->createJobArray();
-        }
+        $guzzle = m::mock('GuzzleHttp\Client');
 
-        $responseBody = json_encode($payload);
+        $query = new ZiprecruiterQuery($options);
 
-        $job = m::mock($this->jobClass);
-        $job->shouldReceive('setQuery')->with($provider['keyword'])
-            ->times($provider['jobs_count'])->andReturnSelf();
-        $job->shouldReceive('setSource')->with($provider['source'])
-            ->times($provider['jobs_count'])->andReturnSelf();
+        $client = new ZiprecruiterProvider($query);
+
+        $client->setClient($guzzle);
 
         $response = m::mock('GuzzleHttp\Message\Response');
-        $response->shouldReceive('getBody')->once()->andReturn($responseBody);
 
-        $http = m::mock('GuzzleHttp\Client');
-        $http->shouldReceive(strtolower($this->client->getVerb()))
-            ->with($this->client->getUrl(), $this->client->getHttpClientOptions())
+        $jobs = ['jobs' => [
+                $this->createJobArray(),
+                $this->createJobArray(),
+            ],
+        ];
+
+        $guzzle->shouldReceive('get')
+            ->with($query->getUrl(), [])
             ->once()
             ->andReturn($response);
-        $this->client->setClient($http);
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn(json_encode($jobs));
 
-        $results = $this->client->getJobs();
+        $results = $client->getJobs();
 
-        $this->assertInstanceOf($this->collectionClass, $results);
-        $this->assertCount($provider['jobs_count'], $results);
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertCount(count($jobs['jobs']), $results);
+    }
+
+    /**
+     * Integration test with actual API call to the provider.
+     */
+    public function testItCanGetJobsFromApi()
+    {
+        if (!getenv('API_KEY')) {
+            $this->markTestSkipped('API_KEY not set. Real API call will not be made.');
+        }
+
+        $keyword = 'engineering';
+
+        $query = new ZiprecruiterQuery([
+            'search' => $keyword,
+            'api_key' => getenv('API_KEY'),
+        ]);
+
+        $client = new ZiprecruiterProvider($query);
+
+        $results = $client->getJobs();
+
+        $this->assertInstanceOf('JobApis\Jobs\Client\Collection', $results);
+
+        foreach($results as $job) {
+            $this->assertEquals($keyword, $job->query);
+        }
     }
 
     private function createJobArray() {
@@ -201,21 +134,10 @@ class ZiprecruiterTest extends \PHPUnit_Framework_TestCase
                 'url' => uniqid(),
                 'name' => uniqid(),
             ],
-            'posted_time' => '2015-07-'.rand(1,31),
+            'posted_time' => '2015-'.rand(1,12).'-'.rand(1,31),
             'url' => uniqid(),
+            'city' => null,
+            'state' => null,
         ];
-    }
-
-    private function getProviderAttributes($attributes = [])
-    {
-        $defaults = [
-            'path' => uniqid(),
-            'format' => 'json',
-            'keyword' => uniqid(),
-            'source' => uniqid(),
-            'params' => [uniqid()],
-            'jobs_count' => rand(2,10),
-        ];
-        return array_replace($defaults, $attributes);
     }
 }

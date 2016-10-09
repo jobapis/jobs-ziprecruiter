@@ -76,16 +76,6 @@ class ZiprecruiterQuery extends AbstractQuery
     }
 
     /**
-     * Default parameters
-     *
-     * @var array
-     */
-    protected function defaultAttributes()
-    {
-        return [];
-    }
-
-    /**
      * Required parameters
      *
      * @return array
