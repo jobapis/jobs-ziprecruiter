@@ -1,6 +1,15 @@
 # Changelog
 All Notable changes to `jobs-ziprecruiter` will be documented in this file
 
+## 1.0.0 - 2016-10-09
+
+### Added
+- Support for v2 of jobs-common
+
+### Changed
+- Application namespace
+- Primary interface. Please see readme.md for the latest usage.
+
 ## 0.2.0 - 2015-10-15
 
 ### Added

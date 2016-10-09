@@ -1,4 +1,4 @@
-<?php namespace JobBrander\Jobs\Client\Providers\Test;
+<?php namespace JobApis\Jobs\Client\Providers\Test;
 
 use JobBrander\Jobs\Client\Providers\Ziprecruiter;
 use Mockery as m;
