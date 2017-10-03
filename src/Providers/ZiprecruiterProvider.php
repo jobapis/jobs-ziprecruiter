@@ -60,6 +60,10 @@ class ZiprecruiterProvider extends AbstractProvider
             ->setCity($payload['city'])
             ->setState($payload['state']);
 
+        $job->job_age = $payload['job_age'];
+        $job->posted_time_friendly = $payload['posted_time_friendly'];
+        $job->has_non_zr_url = $payload['has_non_zr_url'];
+
         return $job;
     }
 

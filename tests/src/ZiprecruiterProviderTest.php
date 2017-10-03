@@ -52,6 +52,9 @@ class ZiprecruiterProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($payload['snippet'], $results->getDescription());
         $this->assertEquals($payload['hiring_company']['name'], $results->getCompanyName());
         $this->assertEquals($payload['url'], $results->getUrl());
+        $this->assertEquals($payload['job_age'], $results->job_age);
+        $this->assertEquals($payload['posted_time_friendly'], $results->posted_time_friendly);
+        $this->assertEquals($payload['has_non_zr_url'], $results->has_non_zr_url);
     }
 
     /**
@@ -138,6 +141,9 @@ class ZiprecruiterProviderTest extends \PHPUnit_Framework_TestCase
             'url' => uniqid(),
             'city' => null,
             'state' => null,
+            'job_age' => rand(1, 100),
+            'posted_time_friendly' => uniqid(),
+            'has_non_zr_url' => rand(0, 1),
         ];
     }
 }
