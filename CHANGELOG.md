@@ -1,6 +1,11 @@
 # Changelog
 All Notable changes to `jobs-ziprecruiter` will be documented in this file
 
+## 1.1.0 - 2017-10-04
+
+### Added
+- [New fields specific to Ziprecruiter](https://github.com/jobapis/jobs-ziprecruiter/pull/6).
+
 ## 1.0.0 - 2016-10-09
 
 ### Added
